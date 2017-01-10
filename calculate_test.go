@@ -44,7 +44,7 @@ func TestNewCompute(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(c.Provider(), ShouldEqual, AwsProvider)
 		_, err = NewCompute("Bad Provider", "no region")
-		So(err, ShouldEqual, NoValidProviderProvidedErr)
+		So(err, ShouldEqual, NoValidProviderErr)
 
 		Convey("We can test provider functions", func() {
 			instances, err := c.DescribeInstances(nil)

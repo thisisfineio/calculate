@@ -23,10 +23,11 @@ type DescribeInstancesOutput struct {
 type Compute interface {
 	Provider() string
 	DescribeInstances(*DescribeInstancesInput) (*DescribeInstancesOutput, error)
+	CreateImage(*CreateImageInput) (*CreateImageOutput, error)
 }
 
 var (
-	NoValidProviderProvidedErr = errors.New("calculate: No valid provider was given to NewCompute()")
+	NoValidProviderErr = errors.New("calculate: No valid provider was given to NewCompute()")
 )
 
 func NewCompute(provider, region string) (Compute, error) {
@@ -34,7 +35,7 @@ func NewCompute(provider, region string) (Compute, error) {
 	case AwsProvider:
 		return NewEC2(region), nil
 	}
-	return nil, NoValidProviderProvidedErr
+	return nil, NoValidProviderErr
 }
 
 func NewEC2WithConfig(c *aws.Config) *EC2 {
@@ -47,10 +48,6 @@ type EC2 struct {
 
 func NewEC2(region string) *EC2 {
 	return NewEC2WithConfig(&aws.Config{Region: aws.String(region)})
-}
-
-func NewAwsCompute(e *EC2) Compute {
-	return e
 }
 
 func (e *EC2) DescribeInstances(input *DescribeInstancesInput) (*DescribeInstancesOutput, error) {
@@ -84,4 +81,29 @@ func (e *EC2) Provider() string {
 
 func (e *EC2) SetRegion(s string) {
 	e.service.Config.Region = aws.String(s)
+}
+
+type CreateImageInput struct {
+	AwsInput *ec2.CreateImageInput
+}
+
+type CreateImageOutput struct {
+	AwsOutput *ec2.CreateImageOutput
+}
+
+func (e *EC2) CreateImage(input *CreateImageInput) (*CreateImageOutput, error) {
+	snapshot, err := e.service.CreateImage(input.AwsInput)
+	return &CreateImageOutput{AwsOutput: snapshot}, err
+}
+
+type CreateSnapshotInput struct {
+
+}
+
+type CreateSnapshotOutput struct {
+
+}
+
+func (e *EC2) CreateSnapshot(input *CreateSnapshotInput) (*CreateSnapshotOutput, error) {
+	return nil, nil
 }
