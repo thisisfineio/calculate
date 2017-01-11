@@ -34,7 +34,7 @@ var (
 func NewCompute(provider, region string) (Compute, error) {
 	switch provider {
 	case AwsProvider:
-		return NewEC2(region), nil
+		return Compute(NewEC2(region)), nil
 	}
 	return nil, NoValidProviderErr
 }
