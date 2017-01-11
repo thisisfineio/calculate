@@ -24,6 +24,7 @@ type Compute interface {
 	Provider() string
 	DescribeInstances(*DescribeInstancesInput) (*DescribeInstancesOutput, error)
 	CreateImage(*CreateImageInput) (*CreateImageOutput, error)
+	DescribeImages(*DescribeImagesOutput) (*DescribeImagesOutput, error)
 }
 
 var (
@@ -96,13 +97,22 @@ func (e *EC2) CreateImage(input *CreateImageInput) (*CreateImageOutput, error) {
 	return &CreateImageOutput{AwsOutput: snapshot}, err
 }
 
-type CreateSnapshotInput struct {
-
+type DescribeImagesInput struct {
+	AwsInput *ec2.DescribeImagesInput
 }
 
-type CreateSnapshotOutput struct {
-
+type DescribeImagesOutput struct {
+	AwsOutput *ec2.DescribeImagesOutput
 }
+
+func (e *EC2) DescribeImages(input *DescribeImagesInput) (*DescribeImagesOutput, error) {
+	output, err := e.service.DescribeImages(input.AwsInput)
+	return &DescribeImagesOutput{AwsOutput:output}, err
+}
+
+type CreateSnapshotInput struct {}
+
+type CreateSnapshotOutput struct {}
 
 func (e *EC2) CreateSnapshot(input *CreateSnapshotInput) (*CreateSnapshotOutput, error) {
 	return nil, nil
