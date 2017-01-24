@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"fmt"
-
+	"github.com/thisisfineio/common"
 	"github.com/alistanis/awstools/awsregions"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -34,17 +34,17 @@ func TestEC2_DescribeInstances(t *testing.T) {
 	Convey("We can describe instances in our account", t, func() {
 		ec2 := NewEC2(awsregions.USEast1)
 		So(ec2, ShouldNotBeNil)
-
 	})
 }
 
 func TestNewCompute(t *testing.T) {
 	Convey("We can get a new compute interface with a valid provider, and an error when an invalid one is given", t, func() {
-		c, err := NewCompute(AwsProvider, awsregions.USEast1)
+		c, err := NewCompute(common.AwsProvider, awsregions.USEast1)
 		So(err, ShouldBeNil)
-		So(c.Provider(), ShouldEqual, AwsProvider)
-		_, err = NewCompute("Bad Provider", "no region")
-		So(err, ShouldEqual, NoValidProviderErr)
+		So(c.Provider(), ShouldEqual, common.AwsProvider)
+		_, err = NewCompute(-1, "no region")
+		e := err.(*common.Error)
+		So(e.Code, ShouldEqual, common.InvalidProviderErrCode)
 
 		Convey("We can test provider functions", func() {
 			instances, err := c.DescribeInstances(nil)

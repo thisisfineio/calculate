@@ -1,17 +1,15 @@
 package calculate
 
 import (
-	"errors"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/thisisfineio/common"
 )
 
 const (
-	AwsProvider = "AWS"
+	pkgName = "calculate"
 )
-
 type DescribeInstancesInput struct {
 	AwsInput *ec2.DescribeInstancesInput
 }
@@ -21,22 +19,19 @@ type DescribeInstancesOutput struct {
 }
 
 type Compute interface {
-	Provider() string
+	Provider() int
 	DescribeInstances(*DescribeInstancesInput) (*DescribeInstancesOutput, error)
 	CreateImage(*CreateImageInput) (*CreateImageOutput, error)
-	DescribeImages(*DescribeImagesOutput) (*DescribeImagesOutput, error)
+	DescribeImages(*DescribeImagesInput) (*DescribeImagesOutput, error)
 }
 
-var (
-	NoValidProviderErr = errors.New("calculate: No valid provider was given to NewCompute()")
-)
 
-func NewCompute(provider, region string) (Compute, error) {
+func NewCompute(provider int, region string) (Compute, error) {
 	switch provider {
-	case AwsProvider:
+	case common.AwsProvider:
 		return Compute(NewEC2(region)), nil
 	}
-	return nil, NoValidProviderErr
+	return nil, common.InvalidProviderErr("NewCompute", pkgName)
 }
 
 func NewEC2WithConfig(c *aws.Config) *EC2 {
@@ -76,8 +71,8 @@ func (e *EC2) DescribeEC2Instances(input *ec2.DescribeInstancesInput) (*ec2.Desc
 	return instances, nil
 }
 
-func (e *EC2) Provider() string {
-	return AwsProvider
+func (e *EC2) Provider() int {
+	return common.AwsProvider
 }
 
 func (e *EC2) SetRegion(s string) {
